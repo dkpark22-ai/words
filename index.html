@@ -1,11 +1,117 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>나의 첫 웹페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 페이지</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f5fa;
+    }
+    .card {
+      width: 360px;
+      padding: 2rem 2.5rem 2.5rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 4px 28px rgba(0,0,0,0.08);
+      background: #fff;
+    }
+    h1 {
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+    input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      margin-bottom: 1rem;
+      border: 1px solid #cfd3dc;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #3b49df;
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #2e3ccf; }
+    .separator {
+      text-align: center;
+      margin: 1.2rem 0;
+      color: #888;
+      font-size: 0.9rem;
+    }
+  </style>
 </head>
 <body>
-  <h1>안녕하세요!</h1>
-  <p>GitHub Pages로 만든 첫 페이지입니다 🎉</p>
+  <div class="card">
+    <h1>로그인</h1>
+    <form id="login-form">
+      <label for="userid">아이디</label>
+      <input type="text" id="userid" name="userid" placeholder="아이디를 입력하세요" required>
+      <label for="password">비밀번호</label>
+      <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
+      <button type="submit">로그인</button>
+    </form>
+
+    <div class="separator">또는</div>
+
+    <!-- Google 로그인 버튼이 렌더링될 위치 -->
+    <div id="google-login" style="display:flex;justify-content:center;"></div>
+  </div>
+
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    // 사용자 정의: JWT 토큰을 처리하는 함수
+    function handleCredentialResponse(response) {
+      console.log('구글 JWT:', response.credential);
+      // TODO: 이 토큰을 백엔드에 보내 사용자 인증을 완료하세요.
+    }
+
+    window.onload = () => {
+      // Google 로그인 초기화
+      google.accounts.id.initialize({
+        client_id: 'YOUR_GOOGLE_CLIENT_ID', // TODO: 실제 클라이언트 ID로 교체
+        callback: handleCredentialResponse,
+      });
+
+      // 버튼 렌더링
+      google.accounts.id.renderButton(
+        document.getElementById('google-login'),
+        { theme: 'outline', size: 'large', shape: 'pill' }
+      );
+    };
+
+    // 폼 제출 이벤트 예시
+    document.getElementById('login-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const userId = e.target.userid.value;
+      const password = e.target.password.value;
+
+      // TODO: 이 값들을 백엔드(API)로 전송해서 로그인 로직을 처리하세요.
+      console.log('입력된 아이디:', userId);
+      console.log('입력된 비밀번호:', password);
+      alert('로그인 로직을 구현하세요!');
+    });
+  </script>
 </body>
 </html>
