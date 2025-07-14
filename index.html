@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>로그인 페이지</title>
+  <title>로그인</title>
   <style>
     * { box-sizing: border-box; }
     body {
@@ -41,7 +41,7 @@
       border-radius: 0.5rem;
       font-size: 1rem;
     }
-    button {
+    button.primary {
       width: 100%;
       padding: 0.8rem;
       border: none;
@@ -52,65 +52,93 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    button:hover { background: #2e3ccf; }
+    button.primary:hover { background: #2e3ccf; }
     .separator {
       text-align: center;
       margin: 1.2rem 0;
       color: #888;
       font-size: 0.9rem;
     }
+    /* Google 버튼 */
+    #google-login-btn {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #cfd3dc;
+      border-radius: 0.5rem;
+      background: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: background 0.2s;
+    }
+    #google-login-btn:hover { background: #f5f5f5; }
+    #google-login-btn img { width: 18px; height: 18px; }
   </style>
 </head>
 <body>
   <div class="card">
     <h1>로그인</h1>
     <form id="login-form">
-      <label for="userid">아이디</label>
-      <input type="text" id="userid" name="userid" placeholder="아이디를 입력하세요" required>
+      <label for="email">이메일</label>
+      <input type="email" id="email" name="email" placeholder="email@example.com" required>
       <label for="password">비밀번호</label>
       <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요" required>
-      <button type="submit">로그인</button>
+      <button type="submit" class="primary">로그인</button>
     </form>
 
     <div class="separator">또는</div>
 
-    <!-- Google 로그인 버튼이 렌더링될 위치 -->
-    <div id="google-login" style="display:flex;justify-content:center;"></div>
+    <button id="google-login-btn">
+      <img src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+      Google 계정으로 로그인
+    </button>
   </div>
 
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script>
-    // 사용자 정의: JWT 토큰을 처리하는 함수
-    function handleCredentialResponse(response) {
-      console.log('구글 JWT:', response.credential);
-      // TODO: 이 토큰을 백엔드에 보내 사용자 인증을 완료하세요.
-    }
+  <!-- Firebase JS SDK (모듈 방식) -->
+  <script type="module">
+    // Firebase v10+ 모듈 import
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
-    window.onload = () => {
-      // Google 로그인 초기화
-      google.accounts.id.initialize({
-        client_id: 'YOUR_GOOGLE_CLIENT_ID', // TODO: 실제 클라이언트 ID로 교체
-        callback: handleCredentialResponse,
-      });
-
-      // 버튼 렌더링
-      google.accounts.id.renderButton(
-        document.getElementById('google-login'),
-        { theme: 'outline', size: 'large', shape: 'pill' }
-      );
+    // TODO: 아래 값을 본인 Firebase 프로젝트 설정으로 교체하세요
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      appId: "YOUR_APP_ID",
     };
 
-    // 폼 제출 이벤트 예시
-    document.getElementById('login-form').addEventListener('submit', e => {
-      e.preventDefault();
-      const userId = e.target.userid.value;
-      const password = e.target.password.value;
+    // Firebase 초기화
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
 
-      // TODO: 이 값들을 백엔드(API)로 전송해서 로그인 로직을 처리하세요.
-      console.log('입력된 아이디:', userId);
-      console.log('입력된 비밀번호:', password);
-      alert('로그인 로직을 구현하세요!');
+    // 이메일/비밀번호 로그인
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = e.target.email.value;
+      const pw    = e.target.password.value;
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, pw);
+        alert(`${cred.user.email} 님, 환영합니다!`);
+        // TODO: 로그인 후 페이지 이동 또는 UI 업데이트
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // Google 로그인
+    document.getElementById('google-login-btn').addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        alert(`${result.user.displayName || result.user.email} 님, 환영합니다!`);
+        // TODO: 로그인 후 페이지 이동 또는 UI 업데이트
+      } catch (err) {
+        alert(err.message);
+      }
     });
   </script>
 </body>
